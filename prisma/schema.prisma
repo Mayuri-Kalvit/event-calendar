@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  rsvps     RSVP[]
+}
+
+model Event {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  venue        String?
+  address      String?
+  city         String?
+  country      String?
+  latitude     Float?
+  longitude    Float?
+  startDate    DateTime
+  endDate      DateTime?
+  url          String?
+  imageUrl     String?
+  category     String?  // exhibition, gallery, expo, open-call, etc.
+  price        String?
+  organizer    String?
+  scrapedFrom  String?  // source website
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  rsvps        RSVP[]
+}
+
+model RSVP {
+  id        String   @id @default(cuid())
+  userId    String
+  eventId   String
+  status    String   @default("attending") // attending, maybe, not-attending
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, eventId])
+}
